@@ -24,6 +24,7 @@ namespace Plufinder.Tracker
             string responseMessage = "mongodb+srv://plufinderatlas:fiap123@plufindertracker.l6ath.mongodb.net/Plufinder?connect=replicaSet";
             log.LogInformation("Inicializando Azure Function . . .");
             int usuario = int.Parse(req.Query["usuario"]);
+            int cargo = int.Parse(req.Query["cargo"]);
             int localizacao = int.Parse(req.Query["localizacao"]);
 
             log.LogInformation("Realizando conexão com o MongoDB . . .");
@@ -54,12 +55,14 @@ namespace Plufinder.Tracker
                     {
                         Id = new ObjectId(),
                         IdUsuario = usuario,
-                        IdLocalizacao = localizacao
+                        IdLocalizacao = localizacao,
+                        IdCargo = cargo
+                       
                     };
                     await collection.InsertOneAsync(novoUsuarioLocalizacao);
                 }
 
-                responseMessage = "Operação concluída";
+                responseMessage = $"Operação concluída - Usuário {usuario}, de cargo {cargo}, está na localização {localizacao}";
                 log.LogInformation("Operação concluída sem exceções - realizando commit . . .");
                 session.CommitTransaction();
             }
@@ -70,7 +73,7 @@ namespace Plufinder.Tracker
                 throw;
             }
 
-            return new OkObjectResult(responseMessage);
+            return new JsonResult(responseMessage);
         }
     }
 }
